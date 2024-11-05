@@ -174,11 +174,3 @@ def predict_image(net, img_path, out_path):
     out_img.save(out_path)
     return mask
 
-
-if __name__ == '__main__':
-    from src.unet import UNet
-
-    x, y = torch.rand((3, 256, 256)), torch.zeros((3, 256, 256))
-    loader = DataLoader([(x, y)])
-    net = UNet(n_channels=3, n_classes=3)
-    evaluate(net, loader, torch.device('cpu'))

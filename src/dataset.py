@@ -18,14 +18,10 @@ def whole_dataset(config):
             if file.endswith('.npz'):
                 files.append(file_path)
 
-    # Assuming the dataset size is 163
-    assert len(files) == 163, "Dataset size should be 163"
-
     dataset = BiosensorDataset(files, False, config)
-
     return dataset
 
-def create_datasets_new(config):
+def create_datasets(config):
     path = config['data_path']
     files = []
     for root, dirs, files_ in os.walk(path):
@@ -298,19 +294,3 @@ class BiosensorDataset(Dataset):
         
     def __len__(self):
         return len(self.files)
-    
-    # from src.dynamics import *
-    # def gradient_mask(self, mask):
-    #     interpolated_mask = torch.nn.functional.interpolate(mask.unsqueeze(0).unsqueeze(0).float(), size=(self.mask_size, self.mask_size), mode=self.upscale_mode).squeeze(0).squeeze(0).byte()
-    #     mask_np = interpolated_mask.numpy()
-    #     device = device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    #     if device == 'cuda':
-    #         flows, centers = masks_to_flows_gpu(mask_np, device)
-    #     else:
-    #         flows, centers = masks_to_flows_cpu(mask_np)
-
-    #     flow_x, flow_y = flows
-    #     mask_bool = mask_np.astype(bool)
-    #     output = np.stack((flow_x, flow_y, mask_bool), axis=-1)
-
-    #     return scaled_flow_sum

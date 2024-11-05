@@ -1,12 +1,12 @@
 import os
+import json
 import numpy as np
-import torch
-import skimage.measure
-import scipy.ndimage
 import cv2
+
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
+import torch
 
 def plot_results_tiles(loader, model, device, plot_path, name, config):
     for batch_idx, (data, labels) in enumerate(loader):
@@ -239,6 +239,19 @@ def merge_tiles(tiles, original_size, overlap_rate=0):
     merged[merged >= 0.5] = 1
     merged[merged < 0.5] = 0
     return merged
+
+# Is tiling and overlap rate okay if the input and mask scale is different
+def test_tiling(config):
+    if config['tiling']:
+        tiling_rate = config['tiling_ratio']
+        overlap_rate = config['overlap_rate']
+        mask_size = 80 * config['mask_scale']
+        input_size = 80 * config['input_scale']
+        bio = torch.zeros((config['biosensor_length'], input_size, input_size))
+        mask = torch.zeros((mask_size, mask_size))
+        bio_tiles, mask_tiles = create_tiles(bio, mask, tiling_rate, overlap_rate)
+        print(f"Tiling test\nBio tiles: {bio_tiles.shape}, Mask tiles: {mask_tiles.shape}\n")
+        assert bio_tiles.shape[0] == mask_tiles.shape[0], "Tile number mismatch in data and mask"
 
 def pixel_to_micrometer(pixel_areas, scale_factor, pixel_size=25):
     """
