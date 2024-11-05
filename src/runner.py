@@ -71,7 +71,7 @@ def run_config(config):
                 config,
                 amp=True,
                 checkpoint_dir=model_checkpoint_path,
-                wandb_dir=root_path,
+                wandb_dir=config['save_path'],
             )
         except torch.cuda.OutOfMemoryError:
             torch.cuda.empty_cache()

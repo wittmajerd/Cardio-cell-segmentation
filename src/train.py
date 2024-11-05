@@ -41,7 +41,7 @@ def train_model(
     bio_len = config['biosensor_length']
 
     if wandb_logging:
-        print(wandb_dir)
+        # print(wandb_dir)
         os.environ["WANDB_DIR"] = wandb_dir
         # (Initialize logging)
         experiment = wandb.init(
