@@ -305,7 +305,7 @@ def load_config(run_path):
     with open(os.path.join(run_path, 'config.json'), 'r') as f:
         loaded_config = json.load(f)
 
-    loaded_config['mask_type'] = getattr(__builtins__, loaded_config['mask_type'])
+    loaded_config['mask_type'] = bool
     # Ezeket még nem tudom, hogy kellene visszaalakítani, ha kell egyáltalán
     # loaded_config['model'] = loaded_config['model']
     # loaded_config['down_conv'] = loaded_config['down_conv'])
