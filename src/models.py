@@ -46,7 +46,7 @@ class UNet(nn.Module):
 
 class UNet2(nn.Module):
     def __init__(self, n_channels, n_classes, down_conv, up_conv, mean, std, bilinear=False):
-        super(Unet2, self).__init__()
+        super(UNet2, self).__init__()
         self.n_channels = n_channels
         self.n_classes = n_classes
         self.bilinear = bilinear
@@ -202,9 +202,8 @@ class UNetShallow(nn.Module):
         factor = 2 if bilinear else 1
         # Removed up1 and up2
         self.up3 = Up(256, 128 // factor, up_conv, bilinear)
-        self.up4 = Up(128, 64 // factor, up_conv, bilinear)
-        self.up5 = Up(64, 32, up_conv, bilinear)
-        self.outc = OutConv(32, n_classes)
+        self.up4 = Up(128, 64, up_conv, bilinear)
+        self.outc = OutConv(64, n_classes)
 
     def forward(self, x):
         x = (x - self.mean) / self.std
@@ -217,14 +216,13 @@ class UNetShallow(nn.Module):
         # Adjusted to connect x3 directly to up3
         x = self.up3(x3, x2)
         x = self.up4(x, x1)
-        x = self.up5(x, x1)
         x = self.outc(x)
         return x
 
 
 class UNet2Shallow(nn.Module):
     def __init__(self, n_channels, n_classes, down_conv, up_conv, mean, std, bilinear=False):
-        super(Unet2Shallow, self).__init__()
+        super(UNet2Shallow, self).__init__()
         self.n_channels = n_channels
         self.n_classes = n_classes
         self.bilinear = bilinear
