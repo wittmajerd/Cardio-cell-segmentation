@@ -31,7 +31,7 @@ def plot_results_tiles(loader, model, device, plot_path, name, config):
 
         batch_size = data.shape[0]
         for i in range(batch_size):
-            index = batch_size * batch_idx + i
+            index = loader.batch_size * batch_idx + i
 
             bio_size = 80 * config['input_scale']
             mask_size = 80 * config['mask_scale']
@@ -39,10 +39,10 @@ def plot_results_tiles(loader, model, device, plot_path, name, config):
 
             label = np.squeeze(labels[i])
             binary_prediction = np.squeeze(binary_predictions[i])
-            label = merge_tiles(label, mask_size, overlap_rate)
-            binary_prediction = merge_tiles(binary_prediction, mask_size, overlap_rate)
-            d = merge_tiles(data[i,:,-1], bio_size, overlap_rate)
-            prediction = merge_tiles(predictions[i, :, 0], mask_size, overlap_rate)
+            label = merge_tiles(label, mask_size, overlap_rate, mask=True)
+            binary_prediction = merge_tiles(binary_prediction, mask_size, overlap_rate, mask=True)
+            d = merge_tiles(data[i,:,-1], bio_size, overlap_rate, mask=False)
+            prediction = merge_tiles(predictions[i, :, 0], mask_size, overlap_rate, mask=False)
 
             title = f'{name} {index}'
             plot_pred_image(d, label, prediction, binary_prediction, plot_path, title)
@@ -185,8 +185,8 @@ def plot_tiles(bio_tiles, mask_tiles, plot_path, title):
     plt.close()
 
 def plot_merged_tiles(bio_tiles, mask_tiles, plot_path, title):
-    bio = merge_tiles(bio_tiles[:,-1], 80 * config['input_scale'], config['overlap_rate'])
-    mask = merge_tiles(mask_tiles, 80 * config['mask_scale'], config['overlap_rate'])
+    bio = merge_tiles(bio_tiles[:,-1], 80 * config['input_scale'], config['overlap_rate'], mask=False)
+    mask = merge_tiles(mask_tiles, 80 * config['mask_scale'], config['overlap_rate'], mask=True)
 
     plt.figure(figsize=(20, 10))
     plt.subplot(1, 2, 1)
@@ -220,7 +220,7 @@ def create_tiles(bio, mask, ratio, overlap_rate=0):
 
     return bio_tiles, mask_tiles
 
-def merge_tiles(tiles, original_size, overlap_rate=0):
+def merge_tiles(tiles, original_size, overlap_rate=0, mask=False):
     num_tiles, tile_size, _ = tiles.shape
     stride = tile_size - int(tile_size * overlap_rate)
     ratio = original_size // tile_size
@@ -236,8 +236,9 @@ def merge_tiles(tiles, original_size, overlap_rate=0):
             idx += 1
 
     merged /= contribution_map
-    merged[merged >= 0.5] = 1
-    merged[merged < 0.5] = 0
+    if mask:
+        merged[merged >= 0.5] = 1
+        merged[merged < 0.5] = 0
     return merged
 
 # Is tiling and overlap rate okay if the input and mask scale is different
