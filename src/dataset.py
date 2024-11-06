@@ -21,7 +21,7 @@ def whole_dataset(config):
     dataset = BiosensorDataset(files, False, config)
     return dataset
 
-def create_datasets(config):
+def test_dataset(config):
     path = config['data_path']
     files = []
     for root, dirs, files_ in os.walk(path):
@@ -33,21 +33,12 @@ def create_datasets(config):
     # Assuming the dataset size is 163
     assert len(files) == 163, "Dataset size should be 163"
 
-    train_files = files[:96]
-    val_files = files[96:128]
-    test_files = files[128:]
-    # print(len(train_files), len(val_files), len(test_files))
+    np.random.seed(42)
+    files = np.random.permutation(files)
 
-    if config.get('normalize', False):
-        mean, std = calculate_mean_and_std(path, train_files, config)
-    else:
-        mean, std = 0, 1
-
-    train_dataset = BiosensorDataset(train_files, config.get('augment', False), config)
-    val_dataset = BiosensorDataset(val_files, False, config)
+    test_files = files[:33]
     test_dataset = BiosensorDataset(test_files, False, config)
-
-    return mean, std, train_dataset, val_dataset, test_dataset
+    return test_dataset
 
 def create_folds(config):
     path = config['data_path']
@@ -68,7 +59,6 @@ def create_folds(config):
 
     test_files = files[:33]
     remaining_files = files[33:]
-    # print(len(remaining_files), len(test_files))
 
     test_dataset = BiosensorDataset(test_files, False, config)
 
@@ -262,17 +252,14 @@ class BiosensorDataset(Dataset):
 
         mask_size = self.mask_scale * 80
 
-        # something is wrong here
-        if mask_size == 80:
+        if mask_size < 320:
             num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(mask.astype(np.uint8), connectivity=8)
             centroids = centroids[1:]
             h, w = mask.shape
             scale = mask_size / h
             mask = cv2.resize(mask, (mask_size, mask_size), interpolation=cv2.INTER_NEAREST)
-            # print(scale, mask_size, h)
             centroids = (centroids * scale).astype(int)
             centroids = np.transpose(centroids)
-            # print(centroids)
             mask[centroids[1], centroids[0]] = 500
         else:
             mask = cv2.resize(mask, (mask_size, mask_size), interpolation=cv2.INTER_NEAREST)
