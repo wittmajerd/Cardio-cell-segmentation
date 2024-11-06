@@ -58,11 +58,7 @@ def plot_results_image(loader, model, device, plot_path, name, config):
         
         batch_size = data.shape[0]
         for i in range(batch_size):
-            index = batch_size * batch_idx + i
-
-            bio_size = 80 * config['input_scale']
-            mask_size = 80 * config['mask_scale']
-            overlap_rate = config['overlap_rate']
+            index = loader.batch_size * batch_idx + i
 
             label = np.squeeze(labels[i])
             binary_prediction = np.squeeze(binary_predictions[i])
