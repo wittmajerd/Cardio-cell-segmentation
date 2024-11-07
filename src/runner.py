@@ -102,6 +102,7 @@ def run_config(config):
 
         del train_loader, val_loader
         del train_dataset, val_dataset
+        model = model.to('cpu')
         del model
         torch.cuda.empty_cache()
         gc.collect()
